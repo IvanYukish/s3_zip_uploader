@@ -3,3 +3,5 @@
 /venv/
 /.coverage
 /.pytest_cache/
+/s3_zip_uploader_Ivan_Yukish.egg-info/
+/s3_zip_uploader_Ivan_Yukish/
