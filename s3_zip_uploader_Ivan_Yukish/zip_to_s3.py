@@ -1,7 +1,7 @@
 import argparse
 import logging
 
-from s3_zip_uploader_Ivan_Yukish.uploader import run_uploader
+from uploader import run_uploader
 
 
 logger = logging.getLogger(__name__)
@@ -17,8 +17,9 @@ def main():
     args = parser.parse_args()
 
     # Download the ZIP file from the provided URL
-    run_uploader(args)
+    # run_uploader(args)
     logger.info("File uploading finished")
+    print(args)
 
 if __name__ == '__main__':
     main()
