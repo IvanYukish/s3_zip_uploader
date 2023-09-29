@@ -17,9 +17,7 @@ def main():
     args = parser.parse_args()
 
     # Download the ZIP file from the provided URL
-    # run_uploader(args)
-    logger.info("File uploading finished")
-    print(args)
+    run_uploader(args)
 
 if __name__ == '__main__':
     main()
