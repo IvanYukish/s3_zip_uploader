@@ -15,6 +15,7 @@ setup(
     name="s3_zip_uploader_Ivan_Yukish",
     version=VERSION,
     author="Yukish Ivan",
+    url='https://github.com/IvanYukish/s3_zip_uploader',
     author_email="<iwan.jukisch@gmail.com>",
     description=DESCRIPTION,
     long_description_content_type="text/markdown",
