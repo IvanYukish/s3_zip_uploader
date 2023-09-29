@@ -10,7 +10,8 @@ $ pip install s3-zip-uploader-Ivan-Yukish
 
 Then run the uploader:
 ```
-$ python3 zip_to_s3.py url=https://example.com/path-to-zip-archive bucket_name=bucket_example_name s3_key_prefix=s3_key_prefix --concurrency 8 --verbose
+$ python3 -m s3_zip_uploader_Ivan_Yukish https://example.com/path-to-zip-archive bucket_example_name s3_key_prefix --concurrency 8 --verbose
+
 ```
 
 ## Application description

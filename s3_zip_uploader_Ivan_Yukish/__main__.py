@@ -1,8 +1,7 @@
 import argparse
 import logging
 
-from uploader import run_uploader
-
+from . import uploader
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,9 @@ def main():
     args = parser.parse_args()
 
     # Download the ZIP file from the provided URL
-    run_uploader(args)
+    upload_successfully = uploader.run_uploader(args)
+    if args.verbose and not upload_successfully:
+        logger.error("Uploader wasn't upload files successfully")
 
 if __name__ == '__main__':
     main()

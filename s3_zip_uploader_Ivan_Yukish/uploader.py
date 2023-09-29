@@ -20,8 +20,12 @@ def upload_files_to_s3(file_name: str, bucket_name: str, s3_key_prefix: str) -> 
 
 
 def run_uploader(parser_args):
-    response = requests.get(parser_args.url)
-    response.raise_for_status()
+    try:
+        response = requests.get(parser_args.url)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.error(e)
+        return False
 
     file_names = []
     with TemporaryDirectory() as temp_dir:
@@ -47,3 +51,4 @@ def run_uploader(parser_args):
                 for result in concurrent.futures.as_completed(results):
                     if parser_args.verbose:
                         logger.info(result.result())
+    return True
