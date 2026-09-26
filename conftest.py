@@ -1,5 +1,7 @@
 import os
+import tarfile
 import tempfile
+import zipfile
 from collections import namedtuple
 
 import boto3
@@ -59,15 +61,62 @@ def s3_bucket(s3_client):
         pytest.fail(f"Failed to delete S3 bucket: {str(e)}")
 
 
+TEST_ARCHIVE_PATH = os.path.join(BASE_DIR, "tests/test_arch.zip")
+TAR_MODES = {
+    "tar": "w",
+    "tar.gz": "w:gz",
+    "tar.bz2": "w:bz2",
+    "tar.xz": "w:xz",
+}
+
+
 @pytest.fixture
-def response_content():
+def http_mock():
     with requests_mock.Mocker() as m:
-        url = "https://example.com/sample.zip"
-        m.get(url, content=open(os.path.join(BASE_DIR, "tests/test_arch.zip"), 'rb').read())
-        yield url
+        yield m
 
 
 @pytest.fixture
-def argparse(response_content, s3_bucket):
+def response_content(http_mock):
+    url = "https://example.com/sample.zip"
+    with open(TEST_ARCHIVE_PATH, "rb") as f:
+        http_mock.get(url, content=f.read())
+    yield url
+
+
+@pytest.fixture(params=["zip", *TAR_MODES])
+def archive_url(request, http_mock, temp_dir):
+    """Serve the test archive repacked in each supported format.
+
+    The URL has no file extension, so the uploader has to detect the format by content.
+    """
+    archive_format = request.param
+    if archive_format == "zip":
+        archive_path = TEST_ARCHIVE_PATH
+    else:
+        source_dir = os.path.join(temp_dir, "source")
+        with zipfile.ZipFile(TEST_ARCHIVE_PATH) as zip_ref:
+            zip_ref.extractall(source_dir)
+        archive_path = os.path.join(temp_dir, f"test_arch.{archive_format}")
+        with tarfile.open(archive_path, TAR_MODES[archive_format]) as tar_ref:
+            tar_ref.add(os.path.join(source_dir, "Maz"), arcname="Maz")
+
+    url = f"https://example.com/download/{archive_format.replace('.', '-')}"
+    with open(archive_path, "rb") as f:
+        http_mock.get(url, content=f.read())
+    yield url
+
+
+@pytest.fixture
+def make_args(s3_bucket):
     args = namedtuple("args", ["url", "bucket_name", "s3_key_prefix", "verbose", "concurrency"])
-    return args(response_content, s3_bucket, "", True, 8)
+
+    def _make_args(url, s3_key_prefix=""):
+        return args(url, s3_bucket, s3_key_prefix, True, 8)
+
+    return _make_args
+
+
+@pytest.fixture
+def argparse(response_content, make_args):
+    return make_args(response_content)

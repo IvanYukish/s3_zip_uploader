@@ -7,8 +7,10 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Upload files to S3 with concurrency')
-    parser.add_argument('url', help='URL to the ZIP archive')
+    parser = argparse.ArgumentParser(
+        description='Upload files from an archive (zip, tar, tar.gz, tar.bz2, tar.xz) to S3 with concurrency'
+    )
+    parser.add_argument('url', help='URL to the archive (zip, tar, tar.gz, tar.bz2 or tar.xz)')
     parser.add_argument('bucket_name', help='S3 bucket name')
     parser.add_argument('s3_key_prefix', default="", help='S3 key prefix for uploaded files')
     parser.add_argument('--concurrency', type=int, default=8, help='Concurrency level')
@@ -19,6 +21,7 @@ def main():
     upload_successfully = uploader.run_uploader(args)
     if args.verbose and not upload_successfully:
         logger.error("Uploader wasn't upload files successfully")
+
 
 if __name__ == '__main__':
     main()
